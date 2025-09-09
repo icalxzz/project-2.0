@@ -245,7 +245,7 @@ const Home = () => {
         className="h-20 flex items-center justify-center 
                    bg-gray-900 text-gray-400 dark:bg-black dark:text-gray-500"
       >
-        <p>© 2025 Faishal Candra Adilah | All rights reserved.</p>
+        <p>© 2025 Informatika | All rights reserved.</p>
       </footer>
     </main>
   );

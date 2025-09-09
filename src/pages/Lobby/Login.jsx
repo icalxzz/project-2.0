@@ -3,7 +3,9 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
 import { useNavigate } from "react-router-dom";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+const BACKEND_URL =
+  import.meta.env.VITE_BACKEND_URL || "/.netlify/functions/server";
+
 
 const Login = ({ setCurrentUser }) => {
   const [email, setEmail] = useState("");

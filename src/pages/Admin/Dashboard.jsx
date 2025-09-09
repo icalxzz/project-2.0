@@ -13,7 +13,10 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "../../firebase";
 
-const API_BASE = "http://localhost:5000/users";
+const API_BASE =
+  import.meta.env.DEV
+    ? "http://localhost:5000" // saat development
+    : "/.netlify/functions/server"; // saat di Netlify
 
 export default function Dashboard() {
   const [users, setUsers] = useState([]);
