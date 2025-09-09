@@ -24,3 +24,7 @@ pnpm-debug.log*
 
 # Package lock (opsional, kalau mau konsisten bisa tetap di-commit)
 # package-lock.json
+# Service account (jangan dipush ke GitHub)
+serviceAccountKey.json
+serviceAccountKey.json
+backend/serviceAccountKey.json
