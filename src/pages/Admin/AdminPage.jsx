@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../firebase";
+import { db } from "/2.0/src/firebase.js";
 import { getDatabase, ref, get, set, remove } from "firebase/database";
 import * as XLSX from "xlsx";
 

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebase";
+import { auth } from "/2.0/src/firebase.js";
 import { useNavigate } from "react-router-dom";
 
 const BACKEND_URL =
-  import.meta.env.VITE_BACKEND_URL || "/.netlify/functions/server";
-
+  import.meta.env.DEV
+    ? "http://localhost:5000"
+    : import.meta.env.VITE_BACKEND_URL;
 
 const Login = ({ setCurrentUser }) => {
   const [email, setEmail] = useState("");
@@ -20,7 +21,7 @@ const Login = ({ setCurrentUser }) => {
     setError("");
 
     try {
-      // 🔹 1. Login ke Firebase Auth
+      // 1️⃣ Login ke Firebase Auth
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
@@ -28,32 +29,36 @@ const Login = ({ setCurrentUser }) => {
       );
       const user = userCredential.user;
 
-      // 🔹 2. Ambil Firebase ID Token
+      // 2️⃣ Ambil Firebase ID Token
       const idToken = await user.getIdToken();
 
-      // 🔹 3. Simpan uid + token ke localStorage
+      // 3️⃣ Simpan uid + token ke localStorage
       localStorage.setItem("uid", user.uid);
       localStorage.setItem("token", idToken);
 
-      // 🔹 4. Ambil role + data user dari backend
-      const res = await fetch(`${BACKEND_URL}/users/${user.uid}`, {
+      console.log("🔑 Firebase UID:", user.uid);
+      console.log("🔑 Firebase Token:", idToken.substring(0, 20) + "...");
+
+      // 4️⃣ Kirim ID Token ke backend untuk verifikasi & ambil data user
+      const res = await fetch(`${BACKEND_URL}/login`, {
+        method: "POST",
         headers: {
-          Authorization: `Bearer ${idToken}`, // <= WAJIB
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({ idToken }), // 👈 kirim idToken, bukan uid
       });
 
       if (!res.ok) {
-        throw new Error("Gagal ambil data user dari server");
+        throw new Error(`Gagal ambil data user: ${res.statusText}`);
       }
 
       const userData = await res.json();
 
-      // 🔹 5. Simpan ke state global
-      setCurrentUser(userData);
+      // 5️⃣ Simpan user ke state global
+      setCurrentUser(userData.user);
 
-      // 🔹 6. Redirect sesuai role
-      redirectByRole(userData.role, navigate);
+      // 6️⃣ Redirect sesuai role
+      redirectByRole(userData.user.role);
     } catch (err) {
       console.error("Login error:", err);
       setError("Login gagal: " + err.message);
@@ -62,8 +67,8 @@ const Login = ({ setCurrentUser }) => {
     }
   };
 
-  // 🔹 Fungsi helper redirect berdasarkan role
-  const redirectByRole = (role, navigate) => {
+  // 🔹 Helper redirect
+  const redirectByRole = (role) => {
     switch (role) {
       case "admin":
         navigate("/admin");

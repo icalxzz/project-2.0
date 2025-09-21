@@ -1,0 +1,5 @@
+biodata
+winrate absensi
+batas score telat
+msrk tanggal
+list tugas (mapel)

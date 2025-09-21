@@ -1,6 +1,3 @@
 [build]
-  command = "npm run build"
-  publish = "dist"
-
-[functions]
-  directory = "netlify/functions"
+  functions = "netlify/functions"
+  publish = "dist" # kalau React Vite → "dist", CRA → "build"

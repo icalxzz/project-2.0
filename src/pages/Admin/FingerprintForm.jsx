@@ -9,6 +9,7 @@ export default function FingerprintForm() {
     id: "",
     nama: "",
     kelas: "",
+    nisn: "",
   });
   const [loading, setLoading] = useState(false);
 
@@ -19,7 +20,8 @@ export default function FingerprintForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.id || !formData.nama || !formData.kelas) {
+    // ✅ Validasi field wajib (hapus nis)
+    if (!formData.id || !formData.nama || !formData.kelas || !formData.nisn) {
       alert("⚠️ Semua field wajib diisi!");
       return;
     }
@@ -33,6 +35,8 @@ export default function FingerprintForm() {
         return;
       }
 
+      await user.getIdToken(true);
+
       const tokenResult = await getIdTokenResult(user);
       if (tokenResult.claims.role !== "admin") {
         alert("❌ Gagal menyimpan data! Kamu tidak punya izin (bukan admin).");
@@ -40,15 +44,17 @@ export default function FingerprintForm() {
         return;
       }
 
+      // ✅ Simpan ke Firestore
       await setDoc(doc(db, "siswa", formData.id), {
         id: formData.id,
         nama: formData.nama,
         kelas: formData.kelas,
+        nisn: formData.nisn,
         createdAt: serverTimestamp(),
       });
 
       alert("✅ Pendaftaran sidik jari berhasil disimpan!");
-      setFormData({ id: "", nama: "", kelas: "" });
+      setFormData({ id: "", nama: "", kelas: "", nisn: "" });
     } catch (error) {
       console.error("❌ Error menyimpan data:", error);
       if (error.code === "permission-denied") {
@@ -116,6 +122,22 @@ export default function FingerprintForm() {
               required
               className="w-full px-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
               placeholder="Contoh: XII-D"
+            />
+          </div>
+
+          {/* Input NISN */}
+          <div>
+            <label className="block text-gray-700 dark:text-gray-300 mb-1 text-sm sm:text-base">
+              NISN
+            </label>
+            <input
+              type="text"
+              name="nisn"
+              value={formData.nisn}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+              placeholder="Masukkan NISN"
             />
           </div>
 

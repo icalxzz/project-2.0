@@ -75,7 +75,13 @@ void showLCD(const String& line1, const String& line2 = "") {
 // ---------------- Firestore Check ----------------
 bool checkStudentInFirestore(const String& id, String& nama, String& kelas) {
   HTTPClient http;
-  String url = String("https://firestore.googleapis.com/v1/projects/") + FIRESTORE_PROJECT_ID + "/databases/(default)/documents/siswa/" + id + "?key=" + FIRESTORE_API_KEY;
+
+  String url = String("https://firestore.googleapis.com/v1/projects/") +
+               FIRESTORE_PROJECT_ID +
+               "/databases/(default)/documents/siswa/" +
+               id +
+               "?key=" + FIRESTORE_API_KEY;
+
   http.begin(url);
   int code = http.GET();
   if (code == 200) {
@@ -86,12 +92,12 @@ bool checkStudentInFirestore(const String& id, String& nama, String& kelas) {
         nama = doc["fields"]["nama"]["stringValue"] | String("Unknown");
         kelas = doc["fields"]["kelas"]["stringValue"] | String("Unknown");
         http.end();
-        return true;
+        return true;  // Data ditemukan
       }
     }
   }
   http.end();
-  return false;
+  return false;       // Data tidak ada
 }
 
 // ---------------- Fingerprint Functions ----------------
