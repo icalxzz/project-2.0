@@ -12,7 +12,7 @@ import {
 } from "recharts";
 
 import UserPageStyles from "../css/UserPages";
-import CalendarAbsensi from "/2.0/src/components/calendar";
+import CalendarAbsensi from "/2.0/src/pages/card/users/calendar";
 
 // API endpoint (netlify / local)
 const API_BASE =
@@ -50,7 +50,7 @@ const UserPage = () => {
           const data = await res.json();
 
           if (data.siswaId) {
-            // 🔹 Step 2: Ambil biodata siswa dari Firestore
+            // 🔹 Step 2: Ambil biodata siswa dari Firestore (termasuk NISN)
             const siswaRef = doc(db, "siswa", data.siswaId.toString());
             const siswaSnap = await getDoc(siswaRef);
 
@@ -160,7 +160,7 @@ const UserPage = () => {
           Dashboard
         </h1>
         <p className="mt-4 text-xl md:text-2xl text-purple-200 font-light">
-          Selamat datang kembali,{" "}
+          hii,{" "}
           <span className="font-semibold">{userEmail}</span>
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
@@ -178,10 +178,10 @@ const UserPage = () => {
                 <div className="absolute inset-0 p-8 bg-white/10 backdrop-blur-lg rounded-3xl border border-white/20 flex flex-col justify-between [backface-visibility:hidden]">
                   <div>
                     <h2 className="text-2xl font-semibold text-white">
-                      Profil Saya
+                      Biodata
                     </h2>
                     <p className="text-purple-200 mt-4">
-                      Kelola informasi pribadi & akun Anda.
+                      Buka Untuk Melihat
                     </p>
                   </div>
                   <button
@@ -196,13 +196,17 @@ const UserPage = () => {
                 <div className="absolute inset-0 p-8 bg-white/10 backdrop-blur-lg rounded-3xl border border-white/20 flex flex-col justify-between [backface-visibility:hidden] [transform:rotateY(180deg)]">
                   <div>
                     <h2 className="text-2xl font-semibold text-white">
-                      Biodata Siswa
+                      Biodata
                     </h2>
                     {biodata ? (
                       <ul className="mt-4 space-y-2 text-purple-200 text-left">
                         <li>
                           <span className="font-semibold text-white">Nama:</span>{" "}
                           {biodata.nama}
+                        </li>
+                        <li>
+                          <span className="font-semibold text-white">NISN:</span>{" "}
+                          {biodata.nisn || "Tidak tersedia"}
                         </li>
                         <li>
                           <span className="font-semibold text-white">Kelas:</span>{" "}

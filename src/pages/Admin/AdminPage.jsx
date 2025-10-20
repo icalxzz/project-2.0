@@ -45,7 +45,7 @@ const AdminPage = () => {
   const [idSiswa, setIdSiswa] = useState("");
   const [status, setStatus] = useState("hadir");
 
-  const [filterKelas, setFilterKelas] = useState("all");
+  const [searchKelas, setSearchKelas] = useState(""); // Ubah dari filterKelas
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchNama, setSearchNama] = useState("");
   const [sortBy, setSortBy] = useState("tanggal");
@@ -169,7 +169,9 @@ const AdminPage = () => {
 
   // 🔹 Filter
   const filteredAbsensi = absensi.filter((item) => {
-    const matchKelas = filterKelas === "all" || item.kelas === filterKelas;
+    const matchKelas =
+      searchKelas === "" ||
+      item.kelas?.toLowerCase().includes(searchKelas.toLowerCase());
     const matchStatus =
       filterStatus === "all" || item.status_kehadiran === filterStatus;
     const matchNama =
@@ -177,8 +179,6 @@ const AdminPage = () => {
       item.nama?.toLowerCase().includes(searchNama.toLowerCase());
     return matchKelas && matchStatus && matchNama;
   });
-
-  const uniqueKelas = [...new Set(absensi.map((item) => item.kelas))];
 
   // 🔹 Group by tanggal
   const groupedAbsensi = filteredAbsensi.reduce((groups, item) => {
@@ -194,7 +194,7 @@ const AdminPage = () => {
     <div className="min-h-screen bg-slate-950 text-white pt-20 px-4 sm:px-6 md:px-10 space-y-10">
       {/* Form tambah absensi */}
       <div className="bg-slate-800 p-4 sm:p-6 rounded-xl shadow-lg">
-        <h2 className="text-lg sm:text-xl font-bold mb-4">📅 Tambah Absensi</h2>
+        <h2 className="text-lg sm:text-xl font-bold mb-4">Input Absensi</h2>
         <form
           onSubmit={handleAddAbsensi}
           className="grid grid-cols-1 sm:grid-cols-3 gap-4"
@@ -232,18 +232,18 @@ const AdminPage = () => {
 
       {/* Filter */}
       <div className="bg-slate-800 p-4 sm:p-6 rounded-xl shadow-lg">
-        <h2 className="text-lg sm:text-xl font-bold mb-4">🔎 Filter & Sort</h2>
+        <h2 className="text-lg sm:text-xl font-bold mb-4">Search</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <select
-            value={filterKelas}
-            onChange={(e) => setFilterKelas(e.target.value)}
-            className="px-4 py-2 rounded-full w-full md:w-1/1 bg-white/90 text-gray-900 placeholder-gray-600 shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-          >
-            <option value="all">Semua Kelas</option>
-            {uniqueKelas.map((k) => (
-              <option key={k}>{k}</option>
-            ))}
-          </select>
+          {/* ⭐ FILTER KELAS BERUBAH MENJADI SEARCH INPUT */}
+          <input
+            type="text"
+            placeholder="Cari Kelas..."
+            value={searchKelas}
+            onChange={(e) => setSearchKelas(e.target.value)}
+            className="px-4 py-2 rounded-full w-full md:w-1/1 
+              bg-white/90 text-gray-900 placeholder-gray-600 
+                shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+          />
 
           <select
             value={filterStatus}

@@ -1,4 +1,6 @@
-// server.js
+// ==========================================================
+// ✅ server.js — Gabungan penuh CRUD User + Proteksi Edit Siswa
+// ==========================================================
 import express from "express";
 import mysql from "mysql2";
 import cors from "cors";
@@ -15,6 +17,8 @@ const serviceAccount = JSON.parse(
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
+
+const firestore = admin.firestore();
 
 // ==========================================================
 // 🔹 Init Express
@@ -56,7 +60,79 @@ function mapUser(user) {
 }
 
 // ==========================================================
-// 🔹 API ROUTES
+// 🔹 Middleware: Verifikasi Token Firebase
+// ==========================================================
+const authenticateToken = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Token tidak ditemukan" });
+  }
+
+  const idToken = authHeader.split("Bearer ")[1];
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    req.user = decodedToken;
+    next();
+  } catch (err) {
+    console.error("❌ Token invalid:", err);
+    res.status(401).json({ error: "Token tidak valid" });
+  }
+};
+
+// ==========================================================
+// 🔹 Middleware: Cek admin
+// ==========================================================
+const isAdmin = async (req, res, next) => {
+  const { uid } = req.user;
+  const [rows] = await db
+    .promise()
+    .query("SELECT role FROM users WHERE uid = ?", [uid]);
+
+  if (rows.length === 0)
+    return res.status(403).json({ error: "User tidak ditemukan di DB" });
+  if (rows[0].role !== "admin")
+    return res.status(403).json({ error: "Hanya admin yang bisa mengakses" });
+
+  next();
+};
+
+// ==========================================================
+// 🔹 Middleware: Hanya admin atau user dengan siswa_id sesuai yang bisa edit
+// ==========================================================
+const canEditSiswa = async (req, res, next) => {
+  try {
+    const { id } = req.params; // id siswa di URL
+    const requesterUid = req.user.uid;
+
+    // ambil data user dari MySQL
+    const [rows] = await db
+      .promise()
+      .query("SELECT role, siswa_id FROM users WHERE uid = ?", [requesterUid]);
+
+    if (rows.length === 0)
+      return res.status(403).json({ error: "User tidak ditemukan" });
+
+    const { role, siswa_id } = rows[0];
+
+    // admin boleh edit siapa saja
+    if (role === "admin") return next();
+
+    // siswa hanya boleh edit datanya sendiri
+    if (String(siswa_id) !== String(id)) {
+      return res
+        .status(403)
+        .json({ error: "Akses ditolak: tidak dapat mengedit data siswa lain" });
+    }
+
+    next();
+  } catch (err) {
+    console.error("❌ Error in canEditSiswa:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+// ==========================================================
+// 🔹 API ROUTES CRUD USER (MySQL + Firebase)
 // ==========================================================
 
 // 🔹 Get siswaId berdasarkan uid
@@ -241,6 +317,37 @@ app.post("/login", async (req, res) => {
   } catch (err) {
     console.error("❌ Error login:", err);
     res.status(401).json({ error: "Token tidak valid" });
+  }
+});
+
+// ==========================================================
+// 🔹 UPDATE DATA SISWA DI FIRESTORE (HANYA DIRI SENDIRI / ADMIN)
+// ==========================================================
+app.put("/firestore/siswa/:id", authenticateToken, canEditSiswa, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nama, kelas, nisn } = req.body;
+
+    if (!nama && !kelas && !nisn)
+      return res.status(400).json({ error: "Tidak ada data yang dikirim" });
+
+    const siswaRef = firestore.collection("siswa").doc(id);
+    const docSnap = await siswaRef.get();
+
+    if (!docSnap.exists)
+      return res.status(404).json({ error: "Data siswa tidak ditemukan di Firestore" });
+
+    await siswaRef.update({
+      ...(nama && { nama }),
+      ...(kelas && { kelas }),
+      ...(nisn && { nisn }),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    res.json({ message: "✅ Data siswa berhasil diupdate di Firestore" });
+  } catch (err) {
+    console.error("❌ Gagal update Firestore:", err);
+    res.status(500).json({ error: err.message });
   }
 });
 

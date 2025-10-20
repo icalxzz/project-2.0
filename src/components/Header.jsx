@@ -9,6 +9,7 @@ import {
   ClipboardList,
   Users,
   LogOut,
+  User2Icon,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -43,6 +44,7 @@ const Navbar = ({ currentUser, setCurrentUser }) => {
       roleNavList = [
         { href: "/user", label: "User Dashboard", icon: <LayoutDashboard size={20} /> },
         { href: "/attendance", label: "Data Kehadiran", icon: <ClipboardList size={20} /> },
+        { href: "/Profile", label: "Profile", icon: <User2Icon size={20} /> },
       ];
     }
   }

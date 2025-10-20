@@ -14,6 +14,7 @@ import UserPage from "./pages/Users/UserPage";
 import FingerprintForm from "./pages/Admin/FingerprintForm";
 import AttendancePage from "./pages/Users/AttendancePage";
 import Dashboard from "./pages/Admin/Dashboard"; // 🔹 Dashboard User Firebase
+import Profile from "./pages/Users/profile"
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -88,6 +89,16 @@ function App() {
           element={
             <ProtectedRoute currentUser={currentUser} role="admin">
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+         {/* 🔹 Profil User */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute currentUser={currentUser} role={["user", "admin"]}>
+              <Profile currentUser={currentUser} />
             </ProtectedRoute>
           }
         />

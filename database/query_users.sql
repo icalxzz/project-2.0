@@ -1,0 +1,8 @@
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  uid VARCHAR(128) NOT NULL UNIQUE,
+  email VARCHAR(100) NOT NULL,
+  role ENUM('admin','guru','siswa') DEFAULT 'siswa',
+  siswa_id VARCHAR(50),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
