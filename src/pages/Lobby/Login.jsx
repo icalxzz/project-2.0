@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "/2.0/src/firebase.js";
+import { auth } from "../../firebase";
 import { useNavigate } from "react-router-dom";
 
 const BACKEND_URL =

@@ -12,7 +12,7 @@ import {
 } from "recharts";
 
 import UserPageStyles from "../css/UserPages";
-import CalendarAbsensi from "/2.0/src/pages/card/users/calendar";
+import CalendarAbsensi from "../card/users/calendar";
 
 // API endpoint (netlify / local)
 const API_BASE =

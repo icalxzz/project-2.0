@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { auth } from "/2.0/src/firebase.js";
+import { auth } from "../../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
 const API_BASE = import.meta.env.DEV
